@@ -1,0 +1,26 @@
+{
+  "name": "Player de Música",
+  "version": "1.0.0",
+  "description": "Projeto para testes cypress.",
+  "main": "src/index.html",
+  "scripts": {
+    "cy:open": "cypress open",
+    "test": "cypress run",
+    "start": "npx http-server . -p 5001",
+    "test:e2e": "cypress run --spec \"cypress/e2e/teste_player.cy.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JoaoContreras/playerdemusica#"
+  },
+  "keywords": [
+    "Testing",
+    "Cypress.io"
+    
+  ],
+  "author": "João Contreras <jandrecontreras@gmail.com> ",
+  "homepage": "https://github.com/JoaoContreras/playerdemusica#readme",
+  "devDependencies": {
+    "cypress": "^13.12.0"
+  }
+}
