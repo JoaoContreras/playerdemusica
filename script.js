@@ -6,6 +6,7 @@ const playlist = [
 
 const musica = document.querySelector('audio');
 let indexMusica = 0;
+let autoplayNext = false; // flag para indicar autoplay após carregar metadados
 
 const fimCampo = document.querySelector('.fim');
 const inicioCampo = document.querySelector('.inicio');
@@ -25,19 +26,24 @@ botaoPlay.addEventListener('click', TocarMusica);
 botaoPause.addEventListener('click', pausarMusica);
 musica.addEventListener('timeupdate', atualizarBarra);
 musica.addEventListener('ended', () => {
-    // avançar pra próxima ao terminar
     proximaMusica();
 });
 musica.addEventListener('loadedmetadata', () => {
-    // Quando metadados são carregados atualiza a duração
     progressEl.max = musica.duration || 0;
     fimCampo.textContent = segundoparaminutos(Math.floor(musica.duration || 0));
-    atualizarBarra(); // atualiza posição do ponto imediatamente
+    atualizarBarra();
+
+    // se a flag estiver ativa, toca automaticamente após metadados carregarem
+    if (autoplayNext) {
+        autoplayNext = false;
+        TocarMusica();
+    }
 });
 
 btnAnterior.addEventListener('click', () => {
     indexMusica--;
     if (indexMusica < 0) indexMusica = playlist.length - 1;
+    // não ativa autoplay aqui (comportamento que você pediu)
     renderizarMusica(indexMusica);
 });
 
@@ -48,11 +54,11 @@ btnProximo.addEventListener('click', () => {
 function proximaMusica() {
     indexMusica++;
     if (indexMusica >= playlist.length) indexMusica = 0;
+    autoplayNext = true; // ao avançar, queremos que a próxima comece tocando
     renderizarMusica(indexMusica);
 }
 
 function renderizarMusica(index) {
-    // garante índice válido (wrap)
     if (index < 0) index = 0;
     if (index >= playlist.length) index = playlist.length - 1;
     const track = playlist[index];
@@ -61,17 +67,16 @@ function renderizarMusica(index) {
     nomeDoArtista.textContent = track.artista;
     imagem.src = track.img;
 
-    // recarrega metadados (vai disparar loadedmetadata)
+    // recarrega; play só será chamado no loadedmetadata se autoplayNext estiver true
     musica.load();
 
-    // se quiser tocar automaticamente após trocar:
-    // TocarMusica();
-    pausarMusica(); // deixar pausado por padrão ao trocar
+    // mantém UI em estado pausado até loadedmetadata acionar play (se for o caso)
+    botaoPause.style.display = 'none';
+    botaoPlay.style.display = 'block';
 }
 
 function TocarMusica() {
     musica.play().catch(err => {
-        // autoplay pode falhar em alguns navegadores; apenas logamos
         console.warn('play() falhou:', err);
     });
     botaoPause.style.display = 'block';
@@ -87,7 +92,6 @@ function pausarMusica() {
 function atualizarBarra() {
     if (!musica.duration) return;
     progressEl.value = musica.currentTime;
-    // atualiza ponto (coloca left em percent)
     const pct = (musica.currentTime / musica.duration) * 100;
     ponto.style.left = pct + '%';
     inicioCampo.textContent = segundoparaminutos(Math.floor(musica.currentTime));
@@ -102,5 +106,5 @@ function segundoparaminutos(segundos) {
     return CampoMinutos + ':' + CampoSegundos;
 }
 
-// inicializa primeira música
+// inicializa primeira música (não toca automaticamente)
 renderizarMusica(indexMusica);
