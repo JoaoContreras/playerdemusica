@@ -1,81 +1,108 @@
-body,html{
+body, html {
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    align-items:center ;
+    align-items: center;
     justify-content: center;
     height: 100vh;
     background-color: #333;
-    color:#ddd;
+    color: #ddd;
     font-family: 'Montserrat', sans-serif;
 }
-img {
-    width:300px;
-    height:300px;
-}
 
-.descricao{
-    width: 300px ;
-}
-h2{
-    margin: 5px;
-}
-
-.duracao{
+img.img {
     width: 300px;
-    margin-top: 25px ;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
-.barra{
+.descricao {
+    width: 300px;
+    text-align: center;
+    margin-top: 12px;
+}
+h2 {
+    margin: 5px;
+    font-size: 20px;
+}
+.descricao i {
+    font-style: normal;
+    color: #bbb;
+}
+
+.duracao {
+    width: 300px;
+    margin-top: 18px;
+}
+
+.barra {
     width: 300px;
     height: 6px;
     border: 1px solid #eee;
     border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
+    display: block;
+    position: relative;
+    background: #222;
+    overflow: hidden;
 }
 
-progress{
+.barra progress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
     height: 6px;
-    width: 0px;
-    background-color: #333;
+    border: none;
+    background: transparent;
 }
 
-.ponto{
-    width: 20px;
-    height: 20px;
+.barra progress::-webkit-progress-bar {
+    background: transparent;
+}
+
+.barra progress::-webkit-progress-value {
+    background-color: #eee;
+}
+
+.ponto {
+    width: 16px;
+    height: 16px;
     background-color: #eee;
     border-radius: 50%;
-    margin-left: -10px;
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
-.tempo{
+.tempo {
     display: flex;
     width: 300px;
     justify-content: space-between;
+    margin-top: 6px;
+    font-size: 14px;
 }
 
-.player{
+.player {
     width: 300px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-} 
+    margin-top: 18px;
+}
 
-.botao-play, .botao-pause{
+.botao-play, .botao-pause {
     font-size: 50px;
     cursor: pointer;
-
 }
 
-.setas{
-    font-size: 40px;
+.setas {
+    font-size: 36px;
     cursor: pointer;
 }
 
-.botao-pause{
+.botao-pause {
     display: none;
 }

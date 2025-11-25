@@ -1,65 +1,96 @@
 const playlist = [
-    { titulo: 'Heretic', artista: 'A7X', src: 'musicas/Avenged Sevenfold - Heretic.mp3', img: 'imagens/A7X.jpg' },
+    { titulo: 'Heretic', artista: 'Avenged Sevenfold', src: 'musicas/Avenged Sevenfold - Heretic.mp3', img: 'imagens/A7X.jpg' },
     { titulo: 'Can You Feel My Heart', artista: 'Bring Me the Horizon', src: 'musicas/Bring Me the Horizon - Can You Feel My Heart.mp3', img: 'imagens/Bring Me Horizon.jpg' },
     { titulo: 'Lost', artista: 'LP', src: 'musicas/Linkin Park - Lost.mp3', img: 'imagens/linkin park.jpg' }
 ];
 
 const musica = document.querySelector('audio');
-const indexMusica = 0;
-const DuracaoMusica = document.querySelector('.fim');
+let indexMusica = 0;
 
-const nomedamusica = document.querySelector('.descricao h2');
+const fimCampo = document.querySelector('.fim');
+const inicioCampo = document.querySelector('.inicio');
+const nomeDaMusica = document.querySelector('.titulo');
+const nomeDoArtista = document.querySelector('.artista');
 const imagem = document.querySelector('.img');
-const nomedoartista = document.querySelector('.descricao i');
+const progressEl = document.querySelector('progress');
+const ponto = document.querySelector('.ponto');
+const barraEl = document.querySelector('.barra');
 
-renderizarMusica(indexMusica)
-DuracaoMusica.textContent = segundoparaminutos(Math.floor(musica.duration));
-// eventos
-document.querySelector('.botao-play').addEventListener('click', TocarMusica);
-document.querySelector('.botao-pause').addEventListener('click', pausarMusica);
+const botaoPlay = document.querySelector('.botao-play');
+const botaoPause = document.querySelector('.botao-pause');
+const btnAnterior = document.querySelector('.anterior');
+const btnProximo = document.querySelector('.proximo');
+
+botaoPlay.addEventListener('click', TocarMusica);
+botaoPause.addEventListener('click', pausarMusica);
 musica.addEventListener('timeupdate', atualizarBarra);
+musica.addEventListener('ended', () => {
+    // avançar pra próxima ao terminar
+    proximaMusica();
+});
+musica.addEventListener('loadedmetadata', () => {
+    // Quando metadados são carregados atualiza a duração
+    progressEl.max = musica.duration || 0;
+    fimCampo.textContent = segundoparaminutos(Math.floor(musica.duration || 0));
+    atualizarBarra(); // atualiza posição do ponto imediatamente
+});
 
-document.querySelector('.anterior').addEventListener('click', () => {
-    // Subtrai 1 do índice atual para ir para a música anterior
-    indexMusica --;
+btnAnterior.addEventListener('click', () => {
+    indexMusica--;
+    if (indexMusica < 0) indexMusica = playlist.length - 1;
     renderizarMusica(indexMusica);
-  });
-  
-  document.querySelector('.proximo').addEventListener('click', () => {
-    // Adiciona 1 ao índice atual para ir para a próxima música
-    indexMusica ++;
+});
+
+btnProximo.addEventListener('click', () => {
+    proximaMusica();
+});
+
+function proximaMusica() {
+    indexMusica++;
+    if (indexMusica >= playlist.length) indexMusica = 0;
     renderizarMusica(indexMusica);
-  });
-  
-  
-// funcoes
-function renderizarMusica(index){
-    musica.setAttribute('src', playlist[indexMusica].src);
-    musica.addEventListener('loadeddata', () => {
-        nomedamusica.textContent = playlist[indexMusica].titulo;
-        nomedoartista.textContent = playlist[indexMusica].artista;
-        imagem.src =  playlist[index].img;
-        DuracaoMusica.textContent = segundoparaminutos(Math.floor(musicas.currentTime));
-    });
+}
+
+function renderizarMusica(index) {
+    // garante índice válido (wrap)
+    if (index < 0) index = 0;
+    if (index >= playlist.length) index = playlist.length - 1;
+    const track = playlist[index];
+    musica.src = track.src;
+    nomeDaMusica.textContent = track.titulo;
+    nomeDoArtista.textContent = track.artista;
+    imagem.src = track.img;
+
+    // recarrega metadados (vai disparar loadedmetadata)
+    musica.load();
+
+    // se quiser tocar automaticamente após trocar:
+    // TocarMusica();
+    pausarMusica(); // deixar pausado por padrão ao trocar
 }
 
 function TocarMusica() {
-    musica.play();
-    document.querySelector('.botao-pause').style.display = 'block';
-    document.querySelector('.botao-play').style.display = 'none';
+    musica.play().catch(err => {
+        // autoplay pode falhar em alguns navegadores; apenas logamos
+        console.warn('play() falhou:', err);
+    });
+    botaoPause.style.display = 'block';
+    botaoPlay.style.display = 'none';
 }
 
 function pausarMusica() {
     musica.pause();
-    document.querySelector('.botao-pause').style.display = 'none';
-    document.querySelector('.botao-play').style.display = 'block';
+    botaoPause.style.display = 'none';
+    botaoPlay.style.display = 'block';
 }
 
 function atualizarBarra() {
-    const barra = document.querySelector('progress');
-    barra.style.width = Math.floor((musica.currentTime / musica.duration) * 100) + '%';
-    const TempoDecorrido = document.querySelector('.inicio');
-    TempoDecorrido.textContent = segundoparaminutos(Math.floor(musica.currentTime));
+    if (!musica.duration) return;
+    progressEl.value = musica.currentTime;
+    // atualiza ponto (coloca left em percent)
+    const pct = (musica.currentTime / musica.duration) * 100;
+    ponto.style.left = pct + '%';
+    inicioCampo.textContent = segundoparaminutos(Math.floor(musica.currentTime));
 }
 
 function segundoparaminutos(segundos) {
@@ -70,3 +101,6 @@ function segundoparaminutos(segundos) {
     }
     return CampoMinutos + ':' + CampoSegundos;
 }
+
+// inicializa primeira música
+renderizarMusica(indexMusica);
